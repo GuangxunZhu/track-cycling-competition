@@ -1,0 +1,1 @@
+python tracking/demo_tracking.py --weights models/yolov7_new_2_best.pt --device 2 --source /home/zhuguangxun/datasets/比赛6/20230527_FX3_6412.MP4,/home/zhuguangxun/datasets/比赛6/TY_20230527_0007.MP4,/home/zhuguangxun/datasets/比赛6/C0127.MP4 --fuse-score --agnostic-nms --save-txt

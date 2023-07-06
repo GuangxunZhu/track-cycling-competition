@@ -1,0 +1,10 @@
+pretrained
+yolov7_runs
+videos
+runs
+moels
+fast_reid/datasets
+logs
+wandb
+*.txt
+models
