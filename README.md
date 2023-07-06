@@ -9,6 +9,6 @@ python tracking/demo_tracking.py --weights <检测模型路径> --fast-reid-weig
 ```
 ###  **权重文件** 
 
-百度网盘：链接：[https://pan.baidu.com/s/1F0xJz8IOMIsUkE0x2wb1eQ?pwd=898r](http://)
-提取码：898r 
+[百度网盘链接](http://an.baidu.com/s/1F0xJz8IOMIsUkE0x2wb1eQ?pwd=898r)提取码：898r 
+
 
