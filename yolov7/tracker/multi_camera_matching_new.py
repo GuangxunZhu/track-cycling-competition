@@ -339,7 +339,7 @@ def single_camera_track(t_save, ret , img0, imgsz, source, tracker, stride, devi
 
 
 
-def make_global_assignments(online_targets, track_pool, leader, opt, frame, img, tracklet_len = 10):
+def make_global_assignments(online_targets, track_pool, leader, opt, frame, img, tracklet_len = 12):
         
     eliminate_leader(online_targets, leader, frame, tracklet_len)
 
@@ -361,7 +361,7 @@ def make_global_assignments(online_targets, track_pool, leader, opt, frame, img,
             dists = matching.targets_fuse_iou(dists, online_targets[i], track_pool, i)
             # dists_1 = matching.target_fuse_score(dists_1, online_targets_1)
 
-            matches, u_matched, u_track_pool =matching.linear_assignment(dists,thresh = opt.match_thresh - 0.2)
+            matches, u_matched, u_track_pool =matching.linear_assignment(dists,thresh = opt.match_thresh - 0.3)
             # dists_pp = matching.targets_embedding_distance(track_pool,track_pool) 
 
             for itracked, itrack_pool in matches:

@@ -8,7 +8,7 @@ import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
-sys.path.append("/home/zhuguangxun/xxtrack")
+sys.path.append("/home/zhuguangxun/track-cycling-competition")
 from yolov7.models.experimental import attempt_load
 from yolov7.utils.datasets import LoadStreams, LoadImages, letterbox
 from yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, \
@@ -292,7 +292,7 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=str, default='/home/zhuguangxun/datasets/20221212 iPhone拍摄/Camera Angle1/C9690.MP4,/home/zhuguangxun/datasets/20221212 iPhone拍摄/Camera Angle2/20221213_FX3_2724.MP4,/home/zhuguangxun/datasets/20221212 iPhone拍摄/Camera Angle3/C3440.MP4', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.8, help='object confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.85, help='IOU threshold for NMS')
+    parser.add_argument('--iou-thres', type=float, default=0.8, help='IOU threshold for NMS')
     parser.add_argument('--device', default='2', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--view-img', action='store_true', help='display results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
@@ -314,7 +314,7 @@ if __name__ == '__main__':
     parser.add_argument("--track_thresh", type=float, default=0.3, help="tracking confidence threshold")
 
     parser.add_argument("--new_track_thresh", default=0.4, type=float, help="new track thresh")
-    parser.add_argument("--track_buffer", type=int, default=0, help="the frames for keep lost tracks")
+    parser.add_argument("--track_buffer", type=int, default=2000, help="the frames for keep lost tracks")
     parser.add_argument("--match_thresh", type=float, default=0.7, help="matching threshold for tracking")
     parser.add_argument("--aspect_ratio_thresh", type=float, default=1.6,
                         help="threshold for filtering out boxes of which aspect ratio are above the given value.")
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     parser.add_argument("--with-reid", dest="with_reid", default=False, action="store_true", help="with ReID module.")
     parser.add_argument("--fast-reid-config", dest="fast_reid_config", default=r"fast_reid/configs/Market1501/sbs_S50.yml",
                         type=str, help="reid config file path")
-    parser.add_argument("--fast-reid-weights", dest="fast_reid_weights", default=r"models/Bicycle_sbs_s50_best_2.pth",
+    parser.add_argument("--fast-reid-weights", dest="fast_reid_weights", default=r"models/Bicycle_sbs_s50_best_2_new.pth",
                         type=str, help="reid config file path")
     parser.add_argument('--proximity_thresh', type=float, default=0.5,
                         help='threshold for rejecting low overlap reid matches')

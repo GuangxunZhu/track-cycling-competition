@@ -5,6 +5,7 @@ import time
 import datetime
 import xml.etree.ElementTree as ET
 import math
+from collections import Counter
 
 class Competition(object):
     def __init__(self, key_points_path, start_time, num_source, frame,video_cap, total_turns, opt, im0sz = [2160,3840]):
@@ -53,7 +54,6 @@ class Competition(object):
 
         self.data_dic = []
 
-
         self._frame_on150 = []
 
         
@@ -69,27 +69,72 @@ class Competition(object):
                 is_on_line_150 = (track.camera_idx == 2 and self._judge_line_crossed(self._virtual_line150, key_point, history_key_point))
                 
                 if is_on_line_0 or is_on_line_50 or is_on_line_150 :
-                    data = dict()
-                    data['video_code'] = track.camera_idx
-                    data['player'] = track.track_id
-                    data['turns'] = self.turns[idx]
-                    data['current_location'] = self.locations[idx]
-                    data['current_ranking'] =self.rankings[idx]
-                    data['competition_time'] = self.competition_time
-                    data['sprint_time'] = self.sprint_time[idx]
-                    data['interval_speed'] = [self.speed_0_50[idx][-1],self.speed_50_150[idx][-1], self.speed_150_250[idx][-1]]
-                    data['current_time'] = self.current_time[track.camera_idx] + ';' + str(self.current_frame[track.camera_idx])
-                    data['system_time'] = self.system_time[track.camera_idx]
 
-                    if is_on_line_150:
+                    curr_data_list = [data for data in self.data_dic[-len(self.turns):] if data['video_code'] == track.camera_idx]
+                    curr_player_list = [data['player'] for data in curr_data_list]
 
-                        data['competition_time'] = self._convert_frame150_time(track.camera_idx, idx, self.competition_time)
-                        data['sprint_time'] = self._convert_frame150_time(track.camera_idx, idx, self.sprint_time[idx])
-                        data['current_time'] = self._convert_frame150_time(track.camera_idx, idx, self.current_time[track.camera_idx]) + ';' + str(self._line150_crossed_frame[idx])
-                        data['system_time'] = self.system_time[track.camera_idx].split(' ')[0]+' ' + self._convert_frame150_time(track.camera_idx, idx, self.system_time[track.camera_idx].split(' ')[-1])
+                    if len(curr_data_list) == 1:
+                        self._compensating_data(curr_data_list)
 
-                    self.data_dic.append(data)
-    
+                    if track.track_id not in curr_player_list:
+                        data = dict()
+                        data['video_code'] = track.camera_idx
+                        data['player'] = track.track_id
+                        data['turns'] = self.turns[idx]
+                        data['current_location'] = self.locations[idx]
+                        data['current_ranking'] =self.rankings[idx]
+                        data['competition_time'] = self.competition_time
+                        data['sprint_time'] = self.sprint_time[idx]
+                        data['interval_speed'] = [self.speed_0_50[idx][-1],self.speed_50_150[idx][-1], self.speed_150_250[idx][-1]]
+                        data['current_time'] = self.current_time[track.camera_idx] + ';' + str(self.current_frame[track.camera_idx])
+                        data['system_time'] = self.system_time[track.camera_idx]
+
+                        if is_on_line_150:
+
+                            data['competition_time'] = self._convert_frame150_time(track.camera_idx, idx, self.competition_time)
+                            data['sprint_time'] = self._convert_frame150_time(track.camera_idx, idx, self.sprint_time[idx])
+                            data['current_time'] = self._convert_frame150_time(track.camera_idx, idx, self.current_time[track.camera_idx]) + ';' + str(self._line150_crossed_frame[idx])
+                            data['system_time'] = self.system_time[track.camera_idx].split(' ')[0]+' ' + self._convert_frame150_time(track.camera_idx, idx, self.system_time[track.camera_idx].split(' ')[-1])
+
+                        self.data_dic.append(data)
+
+    def _compensating_data(self, curr_data_list):
+
+        previous_data_list = [data for data in self.data_dic if data not in curr_data_list]
+
+        for turn in range(self._total_turns):
+
+            for camera_idx in range(3):
+
+                data_list = [data for data in previous_data_list if data['turns'] == turn+1 and data['video_code'] == camera_idx]
+
+                if len(data_list) != len(self.turns) and len(data_list):
+
+                    player_list = [data['player'] for data in data_list]
+                    miss_player = []
+                    for i in range(1, len(self.turns) + 1):
+                        if i not in player_list:
+                            miss_player.append(i)
+                    for miss_id in miss_player:
+                        new_data = dict()
+                        new_data['video_code'] = camera_idx
+                        new_data['player'] = miss_id
+                        new_data['turns'] = turn + 1
+
+                        new_data['current_location'] = data_list[len(data_list) // 2]['current_location']
+                        new_data['current_ranking'] = data_list[len(data_list) // 2]['current_ranking']
+                        new_data['competition_time'] = data_list[len(data_list) // 2]['competition_time']
+                        new_data['sprint_time'] = data_list[len(data_list) // 2]['sprint_time']
+                        new_data['interval_speed'] = data_list[len(data_list) // 2]['interval_speed']
+                        new_data['current_time'] = data_list[len(data_list) // 2]['current_time']
+                        new_data['system_time'] = data_list[len(data_list) // 2]['system_time']
+
+                        index = self.data_dic.index(data_list[len(data_list) // 2])
+                        self.data_dic.insert(index + 1, new_data)
+
+
+        
+
     def _convert_frame150_time(self,camera_idx, track_idx, certain_time):
         
         if certain_time == 0:
@@ -169,13 +214,32 @@ class Competition(object):
         largest_diff_values = sorted(diff_values, reverse=True)[:len(self.turns) - 1]
 
         # 根据差值在diff_values中出现的顺序重新排列largest_diff_values
-        reordered_diff_values = [diff for diff in diff_values if diff in largest_diff_values][:len(self.turns) - 1]
+        reordered_diff_values = [diff for diff in diff_values if diff in largest_diff_values]
 
+        merged_lst = []
+        merge_flag = False
+
+        for num in reordered_diff_values:
+            if num == 1:
+                if not merge_flag:
+                    merged_lst.append(num)
+                    merge_flag = True
+            else:
+                merged_lst.append(num)
+                merge_flag = False
+
+        index = -1
+        while len(merged_lst) < len(self.turns) - 1 :          
+            index = merged_lst.index(1, index + 1)
+            merged_lst.insert(index + 1, 1)  # 在原来合并的位置补上1
+
+        if len(merged_lst) > len(self.turns) - 1:
+            merged_lst = merged_lst[:len(self.turns) - 1]
 
         # 根据差值将列表分为n+1个段
         segments = []
         start_index = 0
-        for diff in reordered_diff_values:
+        for diff in merged_lst:
             end_index = start_index + diff_values[start_index:].index(diff) + 1
             segments.append(sorted_lst[start_index:end_index])
             start_index = end_index
@@ -199,8 +263,15 @@ class Competition(object):
                 if self._judge_line_crossed(self._line0, key_point, history_key_point):
                     self.turns[idx] += 1
 
-            if track.camera_idx == 1 and self.turns[idx] < self.turns[idx - 1] :
-                self.turns[idx] += 1
+            if track.camera_idx == 1:
+                unique_value = set(self.turns)
+                if len(unique_value) > 1 :
+                    counter = Counter(self.turns)
+                    most_common_value = counter.most_common(1)[0][0]
+                    if self.turns[idx] > most_common_value :
+                        self.turns[idx] -= 1
+                    elif self.turns[idx] < most_common_value:
+                        self.turns[idx] += 1
 
 
 
