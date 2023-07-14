@@ -203,6 +203,13 @@ class Competition(object):
 
           
     def _get_value(self, index):
+        
+        # 判断记录的帧数是否缺少
+
+        while len(self._frame_on150) < len(self.turns):
+            middle_index = len(self._frame_on150) // 2
+            middle_value = self._frame_on150[middle_index]
+            self._frame_on150.insert(middle_index, middle_value)
 
         # 对列表进行排序
         sorted_lst = sorted(self._frame_on150)
@@ -228,10 +235,10 @@ class Competition(object):
                 merged_lst.append(num)
                 merge_flag = False
 
-        index = -1
+        merge_index = -1
         while len(merged_lst) < len(self.turns) - 1 :          
-            index = merged_lst.index(1, index + 1)
-            merged_lst.insert(index + 1, 1)  # 在原来合并的位置补上1
+            merge_index = merged_lst.index(1, merge_index + 1)
+            merged_lst.insert(merge_index + 1, 1)  # 在原来合并的位置补上1
 
         if len(merged_lst) > len(self.turns) - 1:
             merged_lst = merged_lst[:len(self.turns) - 1]

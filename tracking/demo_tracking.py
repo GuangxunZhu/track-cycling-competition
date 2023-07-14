@@ -338,7 +338,7 @@ if __name__ == '__main__':
 
     #Competition
     parser.add_argument('--total_turns', type=int, default= 6, help='number of total_turns')
-    parser.add_argument('--num_objects', type=int, default= 6, help='number of the objects in MOT')
+    parser.add_argument('--num_objects', type=int, default= 7, help='number of the objects in MOT')
 
     parser.add_argument('--keyline_path', default='competition_rules/files/new_keyline.json', help='path of points of key line')
     parser.add_argument('--mask_points_path', default='competition_rules/files/mask_left_points.txt,competition_rules/files/mask_points.txt', help='path of mask points')
