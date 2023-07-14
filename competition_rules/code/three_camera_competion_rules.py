@@ -462,11 +462,11 @@ class Competition(object):
                 is_line50_crossed = self._judge_line_crossed(self._line50, key_point, history_key_point)
                 if is_line50_crossed:
                     self._line50_crossed_frame[idx] = self.current_frame[1]
-                    if self._line0_crossed_frame[idx] != 0:
-                        time = (self._line50_crossed_frame[idx] - self._line0_crossed_frame[idx]) / self._fps
-                        speed = (50 / time) * 3.6
-                        speed = round(speed, 2)
-                        self.speed_0_50[idx].append(speed)
+                    # if self._line0_crossed_frame[idx] != 0:
+                    time = (self._line50_crossed_frame[idx] - self._line0_crossed_frame[idx]) / self._fps
+                    speed = (50 / time) * 3.6
+                    speed = round(speed, 2)
+                    self.speed_0_50[idx].append(speed)
 
             if track.camera_idx == 2:
                 key_point = self._tlbr_to_bl(track.tlbr[track.camera_idx])
@@ -480,11 +480,11 @@ class Competition(object):
 
                         self._frame_on150 = []
 
-                    if self._line50_crossed_frame[idx] != 0:
-                        time = (self._line150_crossed_frame[idx] - self._line50_crossed_frame[idx]) / self._fps
-                        speed = (100  / time) * 3.6
-                        speed = round(speed, 2)
-                        self.speed_50_150[idx].append(speed)
+                    # if self._line50_crossed_frame[idx] != 0:
+                    time = (self._line150_crossed_frame[idx] - self._line50_crossed_frame[idx]) / self._fps
+                    speed = (100  / time) * 3.6
+                    speed = round(speed, 2)
+                    self.speed_50_150[idx].append(speed)
 
 
 
